@@ -1,0 +1,3 @@
+rootProject.name = 'ReactNativeAmap'
+
+include ':app'
