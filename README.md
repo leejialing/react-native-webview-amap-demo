@@ -10,5 +10,4 @@ react native高德地图拖拽定位demo，使用webview实现。
 *   `npm install`
 
 ## 效果图
-![Alt Text](https://github.com/z372183629/react-native-webview-amap-demo/raw/master/images/1.png) ![Alt Text](https://github.com/z372183629/react-native-webview-amap-demo/raw/master/images/2.png)
-![Alt Text](https://github.com/z372183629/react-native-webview-amap-demo/raw/master/images/3.png) ![Alt Text](https://github.com/z372183629/react-native-webview-amap-demo/raw/master/images/4.png)
+![Alt Text](https://github.com/z372183629/react-native-webview-amap-demo/raw/master/images/GIF.gif)
