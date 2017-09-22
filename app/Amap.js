@@ -26,11 +26,29 @@ const MAP_HEIGHT = SCREEN_HEIGHT / 3
 const ICON_WIDTH = 30
 const ICON_HEIGHT = 30
 
+const patchPostMessageFunction = function() {
+  var originalPostMessage = window.postMessage;
+
+  var patchedPostMessage = function(message, targetOrigin, transfer) {
+    originalPostMessage(message, targetOrigin, transfer);
+  };
+
+  patchedPostMessage.toString = function() {
+    return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+  };
+
+  window.postMessage = patchedPostMessage;
+};
+
+const patchPostMessageJsCode = '(' + String(patchPostMessageFunction) + ')();';
+
 export default class AMap extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
+      loaded: false,
+
       geoInfo: undefined,
 
       positionResult: undefined,
@@ -210,6 +228,7 @@ export default class AMap extends Component {
             javaScriptEnabled={true}
             onMessage={this._handleMessage}
             onLoad={this._onLoad}
+            injectedJavaScript={patchPostMessageJsCode}
           />
         </View>
         <View style={{paddingHorizontal: 10, paddingVertical: 5}}>
@@ -248,10 +267,15 @@ export default class AMap extends Component {
   }
 
   _onLoad = () => {
+    if(this.state.loaded)
+      return;
+
     //webview加载地图完毕，发送定位命令
     this._webview.postMessage(JSON.stringify({
       command: 'geolocation',
     }))
+
+    this.setState({loaded: true})
   }
 
   _handleMessage = (event) => {
