@@ -15,7 +15,7 @@ react native高德地图拖拽定位demo，使用webview实现。
 ## 注意
 *   本项目只提供集成高德地图Web版本的思路，想要更好的用户体验建议使用原生去实现。
 *   截止到2019-08-05，React-Native版本更新到0.60，WebView组件已经从SDK中分离成一个独立的组件[react-native-webview](https://github.com/react-native-community/react-native-webview)。
-*   RN与WebView的通信接口发生了变化,具体请阅读[WebViewAPI文档](https://github.com/react-native-community/react-native-webview/blob/master/docs/Reference.md)以及[JS和Native通信方法](https://github.com/react-native-community/react-native-webview/blob/master/docs/Guide.md#communicating-between-js-and-native)
+*   [react-native-webview](https://github.com/react-native-community/react-native-webview)的通信接口发生了变化,具体请阅读[WebViewAPI文档](https://github.com/react-native-community/react-native-webview/blob/master/docs/Reference.md)以及[JS和Native通信方法](https://github.com/react-native-community/react-native-webview/blob/master/docs/Guide.md#communicating-between-js-and-native)
 
 ## xcode10编译问题
 **xcode 10**在编译**React Native 0.57**以下版本时会出现问题。  
