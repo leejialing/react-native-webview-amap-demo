@@ -13,8 +13,10 @@ import {
   TextInput,
   Alert,
   Platform,
-  WebView
+  WebView,
+  SafeAreaView
 } from 'react-native'
+import _ from 'lodash'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -26,24 +28,24 @@ const MAP_HEIGHT = SCREEN_HEIGHT / 3
 const ICON_WIDTH = 30
 const ICON_HEIGHT = 30
 
-const patchPostMessageFunction = function() {
-  var originalPostMessage = window.postMessage;
+const patchPostMessageFunction = function () {
+  var originalPostMessage = window.postMessage
 
-  var patchedPostMessage = function(message, targetOrigin, transfer) {
-    originalPostMessage(message, targetOrigin, transfer);
-  };
+  var patchedPostMessage = function (message, targetOrigin, transfer) {
+    originalPostMessage(message, targetOrigin, transfer)
+  }
 
-  patchedPostMessage.toString = function() {
-    return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
-  };
+  patchedPostMessage.toString = function () {
+    return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage')
+  }
 
-  window.postMessage = patchedPostMessage;
-};
+  window.postMessage = patchedPostMessage
+}
 
-const patchPostMessageJsCode = '(' + String(patchPostMessageFunction) + ')();';
+const patchPostMessageJsCode = '(' + String(patchPostMessageFunction) + ')();'
 
 export default class AMap extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     this.state = {
@@ -59,13 +61,13 @@ export default class AMap extends Component {
         error: 0,
         message: '',
         data: []
-      },
+      }
     }
   }
 
-  _searchTextChange = (text) => {
+  _searchTextChange = _.debounce((text) => {
     this.setState({
-      searchText: text,
+      searchText: text
     })
 
     if (!text) {
@@ -77,7 +79,7 @@ export default class AMap extends Component {
       command: 'placeSearch',
       data: text
     }))
-  }
+  }, 200)
 
   _clearSearchInput = () => {
     this.setState({
@@ -94,7 +96,7 @@ export default class AMap extends Component {
   _onSearchResultPress = (poiInfo) => {
     this.setState({
       searchText: poiInfo.name,
-      showSearchResult: false,
+      showSearchResult: false
     })
 
     this._webview.postMessage(JSON.stringify({
@@ -109,7 +111,7 @@ export default class AMap extends Component {
   _onSearchInputFocus = () => {
     if (this.state.searchText)
       this.setState({
-        showSearchResult: true,
+        showSearchResult: true
       })
   }
 
@@ -181,7 +183,7 @@ export default class AMap extends Component {
           {
             this.state.positionResult.regeocode.pois.map((item, index) => {
               if (index >= 10)
-                return null;
+                return null
               return (
                 <TouchableHighlight key={index} underlayColor="#ccc" onPress={() => {
                   this._poiItemOnPress(item)
@@ -199,6 +201,7 @@ export default class AMap extends Component {
   }
 
   _submit = () => {
+    if (!this.state.positionResult) return
     let lat = `纬度：${this.state.positionResult.position.lat}`
     let lng = `经度：${this.state.positionResult.position.lng}`
     let address = `地址：${this.state.positionResult.address}`
@@ -206,9 +209,9 @@ export default class AMap extends Component {
     Alert.alert('提示', `${lat}\n${lng}\n${address}`)
   }
 
-  render() {
+  render () {
     //Android编译时不会打包html文件，因此使用require去加载html文件是无效的，可以放在assets文件夹中使用
-    let source;
+    let source
     if (__DEV__) {
       source = require('./html/amap.html')
     } else if (Platform.OS === 'ios') {
@@ -218,7 +221,7 @@ export default class AMap extends Component {
     }
 
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.mapContainer}>
           <WebView
             ref={ref => this._webview = ref}
@@ -255,24 +258,21 @@ export default class AMap extends Component {
                 placeholder="搜索地点"
                 underlineColorAndroid="transparent"
                 style={styles.inputStyle}
-                value={this.state.searchText}
                 onFocus={this._onSearchInputFocus}
               />
             </View>
           </View>
           {this._renderSearchResult()}
         </View>
-      </View>
+      </SafeAreaView>
     )
   }
 
   _onLoad = () => {
-    if(this.state.loaded)
-      return;
-
+    console.log('onLoad')
     //webview加载地图完毕，发送定位命令
     this._webview.postMessage(JSON.stringify({
-      command: 'geolocation',
+      command: 'geolocation'
     }))
 
     this.setState({loaded: true})
@@ -296,23 +296,21 @@ export default class AMap extends Component {
               }
             }))
           }
-        }
-        else {
+        } else {
           //定位失败
           Alert.alert('提示', '定位失败，您可以点击地图左下角小圆点重新定位')
         }
-        break;
+        break
       case 'positionResult':
         if (msgData.code) {
           //选址成功
           this.setState({
             positionResult: msgData.result
           })
-        }
-        else {
+        } else {
           //选址失败
         }
-        break;
+        break
       case 'placeSearch':
         let isOk = msgData.code === 'complete' && this._searchInput.isFocused()
         if (this.state.searchText) {
@@ -325,7 +323,7 @@ export default class AMap extends Component {
             }
           })
         }
-        break;
+        break
     }
   }
 }
@@ -335,12 +333,12 @@ const styles = StyleSheet.create({
     flex: 1,
     ...Platform.select({
       ios: {
-        marginTop: 20,
+        marginTop: 20
       },
       android: {
         marginTop: 0
       }
-    }),
+    })
   },
   mapContainer: {
     marginTop: MAP_MARGIN_TOP,
@@ -369,7 +367,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#c8c7cc',
+    borderColor: '#c8c7cc'
   },
   inputContainerStyle: {
     flex: 1,
@@ -377,18 +375,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderBottomWidth: 0,
     borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: '#c8c7cc',
+    borderLeftColor: '#c8c7cc'
   },
   inputStyle: {
     height: 30,
     padding: 0,
-    margin: 0,
+    margin: 0
   },
 
   searchInputLeftTxt: {
     fontSize: 16,
     color: '#00aaff',
-    paddingRight: 10,
+    paddingRight: 10
   },
   noSearchResultContainer: {
     padding: 10,
@@ -432,22 +430,22 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     marginTop: 5,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#c8c7cc",
+    borderColor: '#c8c7cc'
   },
   poiItemContainer: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: "#999",
+    borderColor: '#999',
     paddingVertical: 5,
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'flex-start'
   },
   poiItemName: {
     fontSize: 16,
-    color: '#000',
+    color: '#000'
   },
   poiItemAddress: {
     fontSize: 14,
-    color: '#999',
+    color: '#999'
   },
   btnSubmit: {
     backgroundColor: '#00aaff',
@@ -459,6 +457,6 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 18
   }
 })
