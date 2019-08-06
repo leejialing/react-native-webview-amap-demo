@@ -14,7 +14,8 @@ import {
   Alert,
   Platform,
   WebView,
-  SafeAreaView
+  SafeAreaView,
+  PermissionsAndroid
 } from 'react-native'
 import _ from 'lodash'
 
@@ -62,6 +63,27 @@ export default class AMap extends Component {
         message: '',
         data: []
       }
+    }
+  }
+
+  componentDidMount () {
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: '申请定位权限',
+          message: '此App需要使用您的定位功能',
+          buttonNeutral: '稍后提醒',
+          buttonNegative: '拒绝',
+          buttonPositive: '允许'
+        }
+      ).then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('granted ACCESS_FINE_LOCATION success')
+        } else {
+          console.log('granted ACCESS_FINE_LOCATION fail')
+        }
+      })
     }
   }
 
@@ -229,6 +251,8 @@ export default class AMap extends Component {
             source={source}
             domStorageEnabled={true}
             javaScriptEnabled={true}
+            geolocationEnabled={true}
+            originWhitelist={['*']}
             onMessage={this._handleMessage}
             onLoad={this._onLoad}
             injectedJavaScript={patchPostMessageJsCode}
